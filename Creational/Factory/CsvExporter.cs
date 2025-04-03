@@ -1,11 +1,11 @@
 using System.Text;
 using System.Collections.Generic;
-using System.Linq;
  
 namespace DesignPatterns.Net.Creational.Factory;
  
 public class CsvExporter : IExportable
 {
+    private const string Separator = ";";
     public string ExportAll(IEnumerable<IEnumerable<string>> items)
     {
         if (items == null)
@@ -14,19 +14,9 @@ public class CsvExporter : IExportable
         var csvBuilder = new StringBuilder();
         foreach (var row in items)
         {
-            csvBuilder.AppendLine(string.Join(",", row ?? Enumerable.Empty<string>()));
+            csvBuilder.AppendLine(string.Join(Separator, row ?? []));
         }
         return csvBuilder.ToString();
     }
  
-    public IEnumerable<string> Export(IEnumerable<IEnumerable<string>> items)
-    {
-        if (items == null)
-            yield break;
- 
-        foreach (var row in items)
-        {
-            yield return string.Join(",", row ?? Enumerable.Empty<string>());
-        }
-    }
 }

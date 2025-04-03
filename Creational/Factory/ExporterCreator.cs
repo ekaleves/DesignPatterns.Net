@@ -12,9 +12,4 @@ public abstract class ExporterCreator
         return exporter.ExportAll(items);
     }
 
-    public IEnumerable<string> Export(IEnumerable<IEnumerable<string>> items)
-    {
-        var exporter = CreateExporter();
-        return exporter.Export(items);
-    }
 }

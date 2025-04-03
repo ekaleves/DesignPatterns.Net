@@ -1,5 +1,3 @@
-using System.Collections.Generic;
-
 namespace DesignPatterns.Net.Creational.Factory;
 
 public class CsvExporterCreator : ExporterCreator

@@ -1,14 +1,14 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.IO;
-
+using System.Text.RegularExpressions;
+ 
 namespace DesignPatterns.Net.Creational.Factory;
-
-public class MovieDomain
+ 
+public partial class MovieDomain
 {
-    private readonly (string Name, int Year, string Genre)[] _movies = new (string, int, string)[]
-    {
+    private readonly (string Name, int Year, string Genre)[] _movies =
+    [
         ("The Shawshank Redemption", 1994, "Drama"),
         ("The Godfather", 1972, "Crime"),
         ("The Dark Knight", 2008, "Action"),
@@ -119,57 +119,60 @@ public class MovieDomain
         ("Fantasy Island", 2020, "Horror"),
         ("The Grudge", 2020, "Horror"),
         ("Like a Boss", 2020, "Comedy"),
-        ("The Turning", 2020, "Horror")
-    };
+        ("The \nTurning", 2020, "Horror"),
+        ("Me; Myself & Irene", 2000, "Comedy")
+    ];
+ 
+    private static readonly string[] headers = ["Name", "Year", "Genre"];
+    
 
-    private string EscapeCsvField(string field)
+    [GeneratedRegex("""[\"\r\n]""")]
+    private static partial Regex QuoteAndLineRegex();
+ 
+    private static string CleanString(string input)
     {
-        if (field.Contains(",") || field.Contains("\"") || field.Contains("\n"))
-        {
-            return $"\"{field.Replace("\"", "\"\"")}\"";
-        }
-        return field;
+        if (string.IsNullOrEmpty(input))
+            return input;
+ 
+        return QuoteAndLineRegex().Replace(input, "").Replace(";", ",");
     }
-
+ 
     private List<IEnumerable<string>> GetExportData()
     {
-        var exportData = new List<IEnumerable<string>>
-        {
-            new[] { "Name", "Year", "Genre" }
-        };
-
-        exportData.AddRange(_movies.Select(movie =>
-            new[]
+        var exportData = new List<IEnumerable<string>>{ headers };
+ 
+        exportData.AddRange(_movies.Select(movie => new[]
             {
-                EscapeCsvField(movie.Name),
+                CleanString(movie.Name),
                 movie.Year.ToString(),
-                EscapeCsvField(movie.Genre)
+                CleanString(movie.Genre)
             }));
-
+ 
         return exportData;
     }
-
+ 
     public void ExportAllToCsv(string filePath)
     {
         var exporterCreator = new CsvExporterCreator();
-        
+       
         var exportData = GetExportData();
-
-        string csvContent = exporterCreator.ExportAll(exportData);
-
-        File.WriteAllText(filePath, csvContent);
+ 
+        string content = exporterCreator.ExportAll(exportData);
+ 
+        File.WriteAllText(filePath, content);
     }
-
-    public void ExportToCsv(string filePath)
+ 
+ 
+    public void ExportAllToJson(string filePath)
     {
-        var exporterCreator = new CsvExporterCreator();
-        
+        var exporterCreator = new JsonExporterCreator();
+       
         var exportData = GetExportData();
-
-        using var writer = new StreamWriter(filePath);
-        foreach (var line in exporterCreator.Export(exportData))
-        {
-            writer.WriteLine(line);
-        }
+ 
+        string content = exporterCreator.ExportAll(exportData);
+ 
+        File.WriteAllText(filePath, content);
     }
+ 
 }
+ 
